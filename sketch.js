@@ -5,9 +5,12 @@ var Engine = Matter.Engine,
  
 var particles = [];
 var plinkos = [];
-
-var divisionHeight=300;
-var score =0;
+var divisions = [];
+var divisionHeight = 300;
+var score = 0;
+var particle;
+var turn = 0;
+var gameState = "play";
 function setup() {
   createCanvas(800, 800);
   engine = Engine.create();
@@ -15,7 +18,8 @@ function setup() {
   ground = new Ground(width/2,height,width,20);
 
 
-   for (var k = 0; k <=width; k = k + 80) {
+   for (var k = 0; k <=width; k = k + 80) 
+   {
      divisions.push(new Divisions(k, height-divisionHeight/2, 10, divisionHeight));
    }
 
@@ -43,20 +47,15 @@ function setup() {
     
        plinkos.push(new Plinko(j,375));
     }
-
-    
-
     
 }
- 
-
 
 function draw() {
   background("black");
+  text(mouseX+","+mouseY, mouseX, mouseY);
   textSize(20)
- //text("Score : "+score,20,30);
+  text("Score : "+score, 20, 30);
   Engine.update(engine);
- 
   
    for (var i = 0; i < plinkos.length; i++) {
      
@@ -64,10 +63,10 @@ function draw() {
      
    }
    if(frameCount%60===0){
-     particles.push(new particle(random(width/2-30, width/2+30), 10,10));
-     score++;
-   }
- 
+    particles.push(new Particle(random(width/2-30, width/2+30), 10,10));
+    //score++;
+  }
+
   for (var j = 0; j < particles.length; j++) {
    
      particles[j].display();
@@ -76,4 +75,40 @@ function draw() {
      
      divisions[k].display();
    }
+
+   if(particle!=null)
+   {
+     particle.display();
+
+     if(particle.body.position.y>500)
+     {
+       if(particle.body.position.x<=300){
+         score = score+500;
+         particle = null;
+         if(turn >= 5)
+          gameState =  "end";
+          //text("GAME OVER!!", 200, 300);
+       }
+       else if(particle.body.position.x>=301 && particle.body.position.x<=600){
+         score = score+100;
+         particle = null;
+         if(turn >= 5)
+          gameState =  "end";
+       }
+       else if(particle.body.position.x>=601 && particle.body.position.x<=900){
+        score = score+200;
+        particle = null;
+        if(turn >= 5)
+          gameState =  "end";
+      }
+      }
+    }
+}
+
+function mousePressed(){
+  if(gameState!== "end"){
+    turn++;
+    particle = new Particle(mouseX, 10, 10, 10);
+    
+}
 }
